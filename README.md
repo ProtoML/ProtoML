@@ -1,4 +1,4 @@
-protoML-core
+ProtoML-core
 ============
 
-The core system behind protoML.
+The core system behind ProtoML.
