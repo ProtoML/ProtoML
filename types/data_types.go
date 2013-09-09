@@ -1,56 +1,32 @@
 package types
 
-type EnumWithDefault struct {
-	DefaultValue string
-	Values       []string
+var DataTypes = map[DataTypeName]DataType{
+	"log": {TypeName: "log",
+		ParentTypes: []DataTypeName{},
+		Description: "for displaying / book keeping",
+		Validator:   func(d Data) bool { return true }},
+	"scalar": {TypeName: "scalar",
+		ParentTypes: []DataTypeName{"log"},
+		Description: "single numbers such as metrics",
+		Validator:   func(d Data) bool { return true }},
+	"observation": {TypeName: "observation",
+		ParentTypes: []DataTypeName{},
+		Description: "row based data",
+		Validator:   func(d Data) bool { return true }},
+	"number": {TypeName: "number",
+		ParentTypes: []DataTypeName{"observation"},
+		Description: "row based number data",
+		Validator:   func(d Data) bool { return true }},
 }
 
-type DataTypeName string
-
-type DataType struct {
-	TypeName DataTypeName
-	ParentType DataTypeName
-	Exclusive bool
-	Description string
-	Validator func(DataType) error //stub
-}
-
-type TransformParameter struct {
-	Parameter string
-	Default string
-	Description string
-}
-
-type TransformParameterValue struct {
-	ParameterType TransformParameter
-	Value interface{}
-}
-
-type TransformTemplate string
-
-type Transform struct {
-	Template TransformTemplate
-	ExclusiveInputTypes []DataTypeName
-	AdditionalInputTypes []DataTypeName
-	ExclusiveOutputTypes []DataTypeName
-	AdditionalOutputTypes []DataTypeName
-	Executor string
-	ExecutorFlags []TransformParameter
-	Parameters map[string]interface{}
-}
-
-type Data struct {
-	ParentId string
-	ExclusiveType DataTypeName
-	AddtionalTypes []DataTypeName
-}
-
-type PipelineNode struct {
-	Template TransformTemplate
-	Id string
-	ParentId string
-}
-
-type Pipeline struct {
-	Nodes []PipelineNode
-}
+/*
+   "string":      {"observation"},            // any string data
+   "text":        {"string"},                 // long strings with words
+   "date-string": {"string"},                 // date data
+   "word":        {"string"},                 // single words
+   "categorical": {"number"},                 // unordered data
+   "numerical":   {"number"},                 // ordered data
+   "0,1":         {"categorical", "ordinal"}, // 0, 1 binary data
+   "-1,1":        {"categorical", "ordinal"}, // -1, +1 binary data
+   "ordinal":     {"numerical"},              // ordered data with meaningless fractions
+*/
