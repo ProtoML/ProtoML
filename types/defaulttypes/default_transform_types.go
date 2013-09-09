@@ -1,4 +1,8 @@
-package types
+package defaulttypes
+
+import (
+	"github.com/ProtoML/ProtoML/types"
+)
 
 /*
    Types that apply to transforms, along with their default values.
@@ -7,10 +11,6 @@ package types
 
    Removing a data type should be as simple as commenting it out in this file.
 */
-
-import (
-	"github.com/ProtoML/ProtoML-core/interfaces"
-)
 
 var BooleanTransformTypes = map[string]bool{
 	"predictor":                false, // transform that predicts a target variable
@@ -41,4 +41,4 @@ var IntegerTransformTypes = map[string]int64{
 	"gpus":  0, // number of gpus the transform requires
 }
 
-var EnumTransformTypes = map[string]interfaces.EnumWithDefault{}
+var EnumTransformTypes = map[string]types.EnumWithDefault{}

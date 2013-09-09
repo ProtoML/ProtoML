@@ -5,6 +5,18 @@ import (
 	"os"
 )
 
+func PanicOnError(err error, logMsg string) {
+	if err != nil {
+		panic(fmt.Sprintf("%v\nerror: %v", logMsg, err))
+	}
+}
+
+func ErrorPanic(err error) {
+	if err != nil {
+		panic(fmt.Sprintf("\nerror: %v", err))
+	}
+}
+
 func PrintAndExit(stuff ...interface{}) {
 	fmt.Println(stuff...)
 	os.Exit(1)
