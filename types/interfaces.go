@@ -10,14 +10,9 @@ type DataType struct {
 }
 
 type FileFormat struct {
-	FormatName string
-	Extension  string
-	Validator  func(Data) bool
-}
-
-type Tag struct {
-	UniqueName  string
+	FormatName  string
 	Description string
+	Validator   func(Data) bool
 }
 
 type TransformParameter struct {
@@ -28,32 +23,37 @@ type TransformParameter struct {
 	Description   string   // description of the parameter
 }
 
+type DataConstraint struct {
+	ExclusiveType DataTypeName
+	Sparse        bool
+	Missing       bool
+	NCols         uint
+	FileFormat    FileFormat
+}
+
 type Transform struct {
 	// a transform to copy
 	Template string
 	// help text
 	Documentation string
-	// tags to find and categorize the transform
-	Tags []Tag
 	// whether or not to keep the template's parameters
 	OverwriteParameters bool
 	// transform parameters
 	Parameters []TransformParameter
 	// input definitions
-	Input [][]string
+	Input []DataConstraint
 	// output definitions
-	Output [][]string
+	Output []DataConstraint
 }
 
 type Data struct {
-	ParentId       string
-	ExclusiveType  DataTypeName
-	Sparse         bool
-	Missing        bool
-	NRows          uint
-	NCols          uint
-	FileFormat     FileFormat
-	AddtionalTypes []DataTypeName
+	DataId        string
+	ExclusiveType DataTypeName
+	Sparse        bool
+	Missing       bool
+	NRows         uint
+	NCols         uint
+	FileFormat    FileFormat
 }
 
 type RunRequest struct {

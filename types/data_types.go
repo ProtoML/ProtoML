@@ -1,5 +1,6 @@
 package types
 
+// this is in a map to guarantee uniqueness and to be able to parse the name from a string
 var DataTypes = map[DataTypeName]DataType{
 	"log": {TypeName: "log",
 		ParentTypes: []DataTypeName{},
@@ -13,20 +14,40 @@ var DataTypes = map[DataTypeName]DataType{
 		ParentTypes: []DataTypeName{},
 		Description: "row based data",
 		Validator:   func(d Data) bool { return true }},
-	"number": {TypeName: "number",
+	"string": {TypeName: "string",
 		ParentTypes: []DataTypeName{"observation"},
+		Description: "any string data",
+		Validator:   func(d Data) bool { return true }},
+	"YYYY-MM-DD": {TypeName: "YYYY-MM-DD",
+		ParentTypes: []DataTypeName{"string"},
+		Description: "date data with appropriate format",
+		Validator:   func(d Data) bool { return true }},
+	"word": {TypeName: "word",
+		ParentTypes: []DataTypeName{"string"},
+		Description: "single word data",
+		Validator:   func(d Data) bool { return true }},
+	"text": {TypeName: "text",
+		ParentTypes: []DataTypeName{"string"},
+		Description: "long string with words",
+		Validator:   func(d Data) bool { return true }},
+	"categorical": {TypeName: "categorical",
+		ParentTypes: []DataTypeName{"number"},
+		Description: "unordered data corresponding to categories",
+		Validator:   func(d Data) bool { return true }},
+	"int": {TypeName: "int",
+		ParentTypes: []DataTypeName{"number"},
+		Description: "numbered data with a meaningful ordering",
+		Validator:   func(d Data) bool { return true }},
+	"real": {TypeName: "real",
+		ParentTypes: []DataTypeName{"ordinal"},
+		Description: "numbered data with meaningful fractional values",
+		Validator:   func(d Data) bool { return true }},
+	"0,1": {TypeName: "0,1",
+		ParentTypes: []DataTypeName{"categorical", "int"},
+		Description: "0, 1 binary data",
+		Validator:   func(d Data) bool { return true }},
+	"-1,1": {TypeName: "-1,1",
+		ParentTypes: []DataTypeName{"categorical", "int"},
 		Description: "row based number data",
 		Validator:   func(d Data) bool { return true }},
 }
-
-/*
-   "string":      {"observation"},            // any string data
-   "text":        {"string"},                 // long strings with words
-   "date-string": {"string"},                 // date data
-   "word":        {"string"},                 // single words
-   "categorical": {"number"},                 // unordered data
-   "numerical":   {"number"},                 // ordered data
-   "0,1":         {"categorical", "ordinal"}, // 0, 1 binary data
-   "-1,1":        {"categorical", "ordinal"}, // -1, +1 binary data
-   "ordinal":     {"numerical"},              // ordered data with meaningless fractions
-*/
