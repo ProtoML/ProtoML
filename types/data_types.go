@@ -1,56 +1,53 @@
 package types
 
-type EnumWithDefault struct {
-	DefaultValue string
-	Values       []string
-}
-
-type DataTypeName string
-
-type DataType struct {
-	TypeName DataTypeName
-	ParentType DataTypeName
-	Exclusive bool
-	Description string
-	Validator func(DataType) error //stub
-}
-
-type TransformParameter struct {
-	Parameter string
-	Default string
-	Description string
-}
-
-type TransformParameterValue struct {
-	ParameterType TransformParameter
-	Value interface{}
-}
-
-type TransformTemplate string
-
-type Transform struct {
-	Template TransformTemplate
-	ExclusiveInputTypes []DataTypeName
-	AdditionalInputTypes []DataTypeName
-	ExclusiveOutputTypes []DataTypeName
-	AdditionalOutputTypes []DataTypeName
-	Executor string
-	ExecutorFlags []TransformParameter
-	Parameters map[string]interface{}
-}
-
-type Data struct {
-	ParentId string
-	ExclusiveType DataTypeName
-	AddtionalTypes []DataTypeName
-}
-
-type PipelineNode struct {
-	Template TransformTemplate
-	Id string
-	ParentId string
-}
-
-type Pipeline struct {
-	Nodes []PipelineNode
+// this is in a map to guarantee uniqueness and to be able to parse the name from a string
+var DataTypes = map[DataTypeName]DataType{
+	"log": {TypeName: "log",
+		ParentTypes: []DataTypeName{},
+		Description: "for displaying / book keeping",
+		Validator:   func(d Data) bool { return true }},
+	"scalar": {TypeName: "scalar",
+		ParentTypes: []DataTypeName{"log"},
+		Description: "single numbers such as metrics",
+		Validator:   func(d Data) bool { return true }},
+	"observation": {TypeName: "observation",
+		ParentTypes: []DataTypeName{},
+		Description: "row based data",
+		Validator:   func(d Data) bool { return true }},
+	"string": {TypeName: "string",
+		ParentTypes: []DataTypeName{"observation"},
+		Description: "any string data",
+		Validator:   func(d Data) bool { return true }},
+	"YYYY-MM-DD": {TypeName: "YYYY-MM-DD",
+		ParentTypes: []DataTypeName{"string"},
+		Description: "date data with appropriate format",
+		Validator:   func(d Data) bool { return true }},
+	"word": {TypeName: "word",
+		ParentTypes: []DataTypeName{"string"},
+		Description: "single word data",
+		Validator:   func(d Data) bool { return true }},
+	"text": {TypeName: "text",
+		ParentTypes: []DataTypeName{"string"},
+		Description: "long string with words",
+		Validator:   func(d Data) bool { return true }},
+	"categorical": {TypeName: "categorical",
+		ParentTypes: []DataTypeName{"number"},
+		Description: "unordered data corresponding to categories",
+		Validator:   func(d Data) bool { return true }},
+	"int": {TypeName: "int",
+		ParentTypes: []DataTypeName{"number"},
+		Description: "numbered data with a meaningful ordering",
+		Validator:   func(d Data) bool { return true }},
+	"real": {TypeName: "real",
+		ParentTypes: []DataTypeName{"ordinal"},
+		Description: "numbered data with meaningful fractional values",
+		Validator:   func(d Data) bool { return true }},
+	"0,1": {TypeName: "0,1",
+		ParentTypes: []DataTypeName{"categorical", "int"},
+		Description: "0, 1 binary data",
+		Validator:   func(d Data) bool { return true }},
+	"-1,1": {TypeName: "-1,1",
+		ParentTypes: []DataTypeName{"categorical", "int"},
+		Description: "row based number data",
+		Validator:   func(d Data) bool { return true }},
 }
