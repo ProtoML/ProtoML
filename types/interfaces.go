@@ -25,10 +25,8 @@ type TransformParameter struct {
 
 type DataConstraint struct {
 	ExclusiveType DataTypeName
-	Sparse        bool
-	Missing       bool
-	NCols         uint
 	FileFormat    FileFormat
+	NCols         uint
 }
 
 type Transform struct {
@@ -49,16 +47,21 @@ type Transform struct {
 type Data struct {
 	DataId        string
 	ExclusiveType DataTypeName
-	Sparse        bool
-	Missing       bool
+	FileFormat    FileFormat
 	NRows         uint
 	NCols         uint
-	FileFormat    FileFormat
 }
 
 type RunRequest struct {
-	DataNamespace  string // namespace of the data
-	TransformName  string // name of transform
-	JsonParameters string // filename of json containing parameters
-	Data           []Data // input data
+	DataNamespace  string   // namespace of the data
+	TransformName  string   // name of transform
+	JsonParameters string   // filename of json containing parameters
+	Data           []Data   // input data
+	Tags           []string // tags to add to the database
+}
+
+type InducedTransform struct {
+	Parameters map[string]string // partially applied valid parameters
+	Input      []DataConstraint  // input definitions
+	Output     []DataConstraint  // output definitions
 }
