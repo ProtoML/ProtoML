@@ -26,8 +26,11 @@ func parseRunRequest(storage persist.PersistStorage) (runRequest types.RunReques
 	runRequest.JsonParameters = *flag.String("parameters", "", "JSON file containing parameters for the transform.")
 	var dataIds stringSlice
 	flag.Var(&dataIds, "data", "List of data ids in the intended ordering.")
+	var tags stringSlice
+	flag.Var(&tags, "tag", "Tags to add to the transform's output.")
 	flag.Parse()
 
+	runRequest.Tags = tags
 	runRequest.Data = make([]types.Data, len(dataIds))
 	for idx, dataId := range dataIds {
 		data, err := storage.LoadData(dataId)
