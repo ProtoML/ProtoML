@@ -7,20 +7,22 @@ import (
 	"os"
 )
 
-const datatype                        = "/datatype"
-const transform                       = "/transform"
-const transformAddRoot                = "/transform/add/root"
-const transformAddChild               = "/transform/add/child"
+const (
+	datatype                        = "/datatype"
+	transform                       = "/transform"
+	transformAddRoot                = "/transform/add/root"
+	transformAddChild               = "/transform/add/child"
 
-const datatypePrefix                  = "/datatype/"
-const transformPrefix                 = "/transform/"
-const transformDeletePrefix           = "/transform/delete/"
-const transformUpdatePrefix           = "/transform/update/"
+	datatypePrefix                  = "/datatype/"
+	transformPrefix                 = "/transform/"
+	transformDeletePrefix           = "/transform/delete/"
+	transformUpdatePrefix           = "/transform/update/"
 
-const datatypePrefixLen               = len(datatypePrefix)
-const transformPrefixLen              = len(transformPrefix)
-const transformDeletePrefixLen        = len(transformDeletePrefix)
-const transformUpdatePrefixLen        = len(transformUpdatePrefix)
+	datatypePrefixLen               = len(datatypePrefix)
+	transformPrefixLen              = len(transformPrefix)
+	transformDeletePrefixLen        = len(transformDeletePrefix)
+	transformUpdatePrefixLen        = len(transformUpdatePrefix)
+)
 
 func main() {
 	var args = os.Args
