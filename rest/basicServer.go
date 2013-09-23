@@ -5,8 +5,18 @@ import (
 	"net/http"
 )
 
-func handler(w http.ResponseWriter, r *http.Request) {
+func unrecognizedCall(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Call Unrecognized")
+}
+
+func datatype(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Expecting GET on all datatypes");
+}
+
+func datatypeID(w http.ResponseWriter, r *http.Request) {
+	const pathLen = len("/datatype/");
+	id := r.URL.Path[pathLen:]
+	fmt.Fprintf(w, "Expecting GET on datatype with id %s", id)
 }
 
 func transform(w http.ResponseWriter, r *http.Request) {
@@ -14,28 +24,40 @@ func transform(w http.ResponseWriter, r *http.Request) {
 }
 
 func transformID(w http.ResponseWriter, r *http.Request) {
-	const transPath = len("/transform/")
-	id := r.URL.Path[transPath:]
+	const pathLen = len("/transform/")
+	id := r.URL.Path[pathLen:]
 	fmt.Fprintf(w, "Expecting GET on transform with id %s", id)
 }
 
-func main() {
-	http.HandleFunc("/", handler)
-	http.HandleFunc("/transform", transform)
-	http.HandleFunc("/transform/", transformID)
-	http.ListenAndServe(":8080", nil)
+func transformAddRoot(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Expecting POST to add a root")
 }
 
-/* SDD Notes
+func transformAddChild(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Expecting POST to add a child")
+}
 
-// SDD Homework?: Mediator
+func transformDelete(w http.ResponseWriter, r *http.Request) {
+	const pathLen = len("/transform/delete/")
+	id := r.URL.Path[pathLen:]
+	fmt.Fprintf(w, "Expecting DELETE on transform with id %s", id)
+}
 
-/transform                              (GET)
-/transform/:id                          (GET)
-/transform/add/root                     (POST)
-/transform/add/child                    (POST)
-/transform/delete/:id                   (DELETE)
-/transform/update/:id                   (UPDATE)
-/datatype                               (GET)
-/datatype/:name                         (GET)
-*/
+func transformUpdate(w http.ResponseWriter, r *http.Request) {
+	const pathLen = len("/transform/update/")
+	id := r.URL.Path[pathLen:]
+	fmt.Fprintf(w, "Expecting UPDATE on transform with id %s", id)
+}
+
+func main() {
+	http.HandleFunc("/", unrecognizedCall)
+	http.HandleFunc("/datatype",                datatype)            // GET
+	http.HandleFunc("/datatype/",               datatypeID)          // GET
+	http.HandleFunc("/transform",               transform)           // GET
+	http.HandleFunc("/transform/",              transformID)         // GET
+	http.HandleFunc("/transform/add/root",      transformAddRoot)    // POST
+	http.HandleFunc("/transform/add/child",     transformAddChild)   // POST
+	http.HandleFunc("/transform/delete/",       transformDelete)     // DELETE
+	http.HandleFunc("/transform/update/",       transformUpdate)     // UPDATE
+	http.ListenAndServe(":8080", nil)
+}
