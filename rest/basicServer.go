@@ -5,59 +5,70 @@ import (
 	"net/http"
 )
 
+const datatype                        = "/datatype"
+const transform                       = "/transform"
+const transformAddRoot                = "/transform/add/root"
+const transformAddChild               = "/transform/add/child"
+
+const datatypePrefix                  = "/datatype/"
+const transformPrefix                 = "/transform/"
+const transformDeletePrefix           = "/transform/delete/"
+const transformUpdatePrefix           = "/transform/update/"
+
+const datatypePrefixLen               = len(datatypePrefix)
+const transformPrefixLen              = len(transformPrefix)
+const transformDeletePrefixLen        = len(transformDeletePrefix)
+const transformUpdatePrefixLen        = len(transformUpdatePrefix)
+
 func unrecognizedCall(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Call Unrecognized")
 }
 
-func datatype(w http.ResponseWriter, r *http.Request) {
+func handleDatatype(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Expecting GET on all datatypes");
 }
 
-func datatypeID(w http.ResponseWriter, r *http.Request) {
-	const pathLen = len("/datatype/");
-	id := r.URL.Path[pathLen:]
+func handleDatatypePrefix(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Path[datatypePrefixLen:]
 	fmt.Fprintf(w, "Expecting GET on datatype with id %s", id)
 }
 
-func transform(w http.ResponseWriter, r *http.Request) {
+func handleTransform(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Expecting GET on all transforms")
 }
 
-func transformID(w http.ResponseWriter, r *http.Request) {
-	const pathLen = len("/transform/")
-	id := r.URL.Path[pathLen:]
+func handleTransformPrefix(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Path[transformPrefixLen:]
 	fmt.Fprintf(w, "Expecting GET on transform with id %s", id)
 }
 
-func transformAddRoot(w http.ResponseWriter, r *http.Request) {
+func handleTransformAddRoot(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Expecting POST to add a root")
 }
 
-func transformAddChild(w http.ResponseWriter, r *http.Request) {
+func handleTransformAddChild(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Expecting POST to add a child")
 }
 
-func transformDelete(w http.ResponseWriter, r *http.Request) {
-	const pathLen = len("/transform/delete/")
-	id := r.URL.Path[pathLen:]
+func handleTransformDelete(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Path[transformDeletePrefixLen:]
 	fmt.Fprintf(w, "Expecting DELETE on transform with id %s", id)
 }
 
-func transformUpdate(w http.ResponseWriter, r *http.Request) {
-	const pathLen = len("/transform/update/")
-	id := r.URL.Path[pathLen:]
+func handleTransformUpdate(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Path[transformUpdatePrefixLen:]
 	fmt.Fprintf(w, "Expecting UPDATE on transform with id %s", id)
 }
 
 func main() {
 	http.HandleFunc("/", unrecognizedCall)
-	http.HandleFunc("/datatype",                datatype)            // GET
-	http.HandleFunc("/datatype/",               datatypeID)          // GET
-	http.HandleFunc("/transform",               transform)           // GET
-	http.HandleFunc("/transform/",              transformID)         // GET
-	http.HandleFunc("/transform/add/root",      transformAddRoot)    // POST
-	http.HandleFunc("/transform/add/child",     transformAddChild)   // POST
-	http.HandleFunc("/transform/delete/",       transformDelete)     // DELETE
-	http.HandleFunc("/transform/update/",       transformUpdate)     // UPDATE
+	http.HandleFunc(datatype,                   handleDatatype)            // GET
+	http.HandleFunc(datatypePrefix,             handleDatatypePrefix)      // GET
+	http.HandleFunc(transform,                  handleTransform)           // GET
+	http.HandleFunc(transformPrefix,            handleTransformPrefix)     // GET
+	http.HandleFunc(transformAddRoot,           handleTransformAddRoot)    // POST
+	http.HandleFunc(transformAddChild,          handleTransformAddChild)   // POST
+	http.HandleFunc(transformDeletePrefix,      handleTransformDelete)     // DELETE
+	http.HandleFunc(transformUpdatePrefix,      handleTransformUpdate)     // UPDATE
 	http.ListenAndServe(":8080", nil)
 }
