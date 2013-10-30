@@ -3,21 +3,15 @@ package types
 type DataTypeName string
 
 type DataType struct {
-	TypeName    DataTypeName
+	TypeName    DataTypeName      
 	ParentTypes []DataTypeName
 	Description string
-	Validator   func(Data) bool // function to test if data matches data type
-}
-
-type FileFormat struct {
-	FormatName  string
-	Description string
-	Validator   func(Data) bool
 }
 
 type TransformParameter struct {
 	ParameterName string   // name of the parameter
 	Values        []string // only filed in for enum parameters
+	DefaultValue  string   // the default value of parameter
 	Distribution  string   // only filled in for numerical parameters
 	NoConstraint  bool     // only filled in for arbitrary string parameters
 	Description   string   // description of the parameter
@@ -25,17 +19,16 @@ type TransformParameter struct {
 
 type DataConstraint struct {
 	ExclusiveType DataTypeName
-	FileFormat    FileFormat
-	NCols         uint
+	Tags          []string
 }
 
-type Transform struct {
-	// a transform to copy
-	Template string
-	// help text
-	Documentation string
-	// whether or not to keep the template's parameters
-	OverwriteParameters bool
+type TransformState struct {
+	StateExt string
+}
+
+type TransformFunction struct {
+	// function name
+	Name string
 	// transform parameters
 	Parameters []TransformParameter
 	// input definitions
@@ -44,24 +37,52 @@ type Transform struct {
 	Output []DataConstraint
 }
 
-type Data struct {
-	DataId        string
-	ExclusiveType DataTypeName
-	FileFormat    FileFormat
-	NRows         uint
-	NCols         uint
-}
-
-type RunRequest struct {
-	DataNamespace  string   // namespace of the data
-	TransformName  string   // name of transform
-	JsonParameters string   // filename of json containing parameters
-	Data           []Data   // input data
-	Tags           []string // tags to add to the database
+type Transform struct {
+	// a transform to copy
+	Template string
+	// help text
+	Documentation string
+	// functions
+	Functions []TransformFunction
+	// formats acceptable
+	FileFormats []string
+	// state formate created and accepted
+	State TransformState
 }
 
 type InducedTransform struct {
-	Parameters map[string]string // partially applied valid parameters
-	Input      []DataConstraint  // input definitions
-	Output     []DataConstraint  // output definitions
+	Template	 string
+	Parameters	 map[string]string // partially applied valid parameters
+	Input		 map[string]DataGroup  // input definitions
+	Output		 map[string]DataGroup  // output definitions
+	State        string //optional state file for transform
+}
+
+type DataColumnTypeGroup map[DataTypeName][]int
+type DataColumnTagGroup map[string][]int
+
+type DatasetColumns struct {
+	ExclusiveTypes DataColumnTypeGroup
+	Tags           DataColumnTagGroup
+}
+
+type DatasetFile struct {
+	Path       string
+	FileFormat string
+	NRows      uint
+	NCols      uint
+	Columns    DatasetColumns
+}
+
+type DataGroupColumns struct {
+	ExclusiveType DataTypeName
+	Tags          [][]string
+}
+
+type DataGroup struct {
+	FileFormat string
+	NRows      uint
+	NCols      uint
+	Columns    DataGroupColumns
+	Source     string
 }
