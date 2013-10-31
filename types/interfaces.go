@@ -4,7 +4,7 @@ type DataTypeName string
 
 type DataType struct {
 	TypeName    DataTypeName
-	ParentTypes []DataType
+	ParentTypes []DataTypeName
 	Description string
 }
 
