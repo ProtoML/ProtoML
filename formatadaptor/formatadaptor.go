@@ -17,7 +17,7 @@ type FileFormatAdaptor interface {
 	Join(srcFiles []string, dstFile string) (err error)
 	ToRaw(srcFile string, dstFile string) (err error)
 	FromRaw(srcFile string, dstFile string) (err error)
-	Shape(path string) (nrows, ncols uint, err error)
+	Shape(path string) (nrows, ncols int, err error)
 }
 
 type FileFormatCollection struct {
@@ -60,7 +60,7 @@ func (fc *FileFormatCollection) ListAdaptors() (adaptors []string) {
 }
 
 // segment columns into data groups and a map of group index to original column index
-func SplitColumns(cols types.DatasetColumns, ncols uint) (groups []types.DataGroupColumns, groupColsIndex [][]int) {                         
+func SplitColumns(cols types.DatasetColumns, ncols int) (groups []types.DataGroupColumns, groupColsIndex [][]int) {                         
 	// tag: [index] -> index: [tag]
 	indexTags := make(map[int][]string)
 	for tag, indexes := range cols.Tags {
@@ -130,7 +130,7 @@ func (fc *FileFormatCollection) Split(dataset types.DatasetFile, dstDir string) 
 		err = errors.New(fmt.Sprintf("Format adaptor for %s did not split into single columns, found %d column files while needing %d columns", dataset.FileFormat, len(splitFiles), ncols))
 		return
 	}
-	var dncols, dnrows uint
+	var dncols, dnrows int
 	for _, sfile := range splitFiles {
 		dncols, dnrows, err = adaptor.Shape(sfile)
 		if err != nil {
@@ -152,7 +152,7 @@ func (fc *FileFormatCollection) Split(dataset types.DatasetFile, dstDir string) 
 		group := groupCols[i]
 dataGroup := types.DataGroup{}
 		dataGroup.FileFormat = dataset.FileFormat
-		dataGroup.NCols = uint(len(group.Tags))
+		dataGroup.NCols = len(group.Tags)
 		dataGroup.NRows = nrows
 		dataGroup.Columns = group
 		dataGroup.Source = path.Base(dataset.Path)

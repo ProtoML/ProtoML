@@ -8,10 +8,7 @@ type DataType struct {
 	Description string
 }
 
-type TransformParameter struct {
-	Possible []string
-	Only string
-}
+type TransformParameter []string
 
 type TransformHyperParameter struct {
 	Default string // the default value of parameter
@@ -21,10 +18,7 @@ type TransformHyperParameter struct {
 }
 
 
-type ConstraintSexp struct {
-	Sexp  []string // If the restriction is a list, it's an S-expression e.g. ["[]","0","1"] and if the input checks out with that function then it's valid
-	Match string // If it's a string, then just check if the input is equivalent to this string
-}
+type ConstraintSexp []string
 /*
 type DataConstraint struct {
 	ExclusiveType DataTypeName
@@ -46,7 +40,6 @@ type StateParameter struct {
 
 type TransformFunction struct {
 	// function name, description
-	Name        string
 	Description string
 	// transform parameters
 	Parameters      map[string]TransformParameter
@@ -100,6 +93,7 @@ type InducedHyperParameter struct {
 type InducedTransform struct {
 	Template        string
 	Exec						string
+	Function				string
 	Parameters      map[string]InducedParameter // inserted valid parameters. Parameters are unchecked strings
 	HyperParameters map[string]InducedHyperParameter // inserted valid hyperparameters
 	Inputs          map[string]InducedFileParameter // input definitions

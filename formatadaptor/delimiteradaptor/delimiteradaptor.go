@@ -216,7 +216,7 @@ func (adaptor *DelimiterAdaptor) Join(srcPaths []string, dstPath string) (err er
 	return nil
 }
  
-func (adaptor *DelimiterAdaptor) Shape(path string) (ncols, nrows uint, err error) {
+func (adaptor *DelimiterAdaptor) Shape(path string) (ncols, nrows int, err error) {
 	// setup files and readers
 	srcFile, err := os.Open(path)
 	if err != nil { return }
@@ -237,7 +237,7 @@ func (adaptor *DelimiterAdaptor) Shape(path string) (ncols, nrows uint, err erro
 		return
 	}
 
-	nrows = uint(reader.FieldsPerRecord)
+	nrows = reader.FieldsPerRecord
 	return
 }
 
