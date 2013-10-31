@@ -249,6 +249,7 @@ func (adaptor *DelimiterAdaptor) Shape(path string) (ncols, nrows int, err error
 	
 	err = nil
 	ncols = reader.FieldsPerRecord
+
 	return
 }
 
