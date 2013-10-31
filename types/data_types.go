@@ -1,57 +1,50 @@
 package types
 
-// this is in a map to guarantee uniqueness and to be able to parse the name from a string
-var DataTypes = map[DataTypeName]DataType{
-	"log": {TypeName: "log",
+// list of default data types
+var DefaultDataTypes = []DataType{
+	DataType{	
+		TypeName: "string",
 		ParentTypes: []DataTypeName{},
-		Description: "for displaying / book keeping",
-		Validator:   func(d Data) bool { return true }},
-	"transform": {TypeName: "transform",
+		Description: "any string data"},
+	DataType{	
+		TypeName: "YYYY-MM-DD",
+		ParentTypes: []DataTypeName{"string"},
+		Description: "date data with appropriate format"},
+	DataType{
+		TypeName: "word",
+		ParentTypes: []DataTypeName{"string"},
+		Description: "single word data"},
+	DataType{	
+		TypeName: "text",
+		ParentTypes: []DataTypeName{"string"},
+		Description: "long string with words"},
+	DataType{
+		TypeName: "ordinal",
 		ParentTypes: []DataTypeName{},
-		Description: "transforms for meta transforms",
-		Validator:   func(d Data) bool { return true }},
-	"scalar": {TypeName: "scalar",
-		ParentTypes: []DataTypeName{"log"},
-		Description: "single numbers such as metrics",
-		Validator:   func(d Data) bool { return true }},
-	"observation": {TypeName: "observation",
+		Description: "data that has an order"},
+	DataType{
+		TypeName: "number",
 		ParentTypes: []DataTypeName{},
-		Description: "row based data",
-		Validator:   func(d Data) bool { return true }},
-	"string": {TypeName: "string",
-		ParentTypes: []DataTypeName{"observation"},
-		Description: "any string data",
-		Validator:   func(d Data) bool { return true }},
-	"YYYY-MM-DD": {TypeName: "YYYY-MM-DD",
-		ParentTypes: []DataTypeName{"string"},
-		Description: "date data with appropriate format",
-		Validator:   func(d Data) bool { return true }},
-	"word": {TypeName: "word",
-		ParentTypes: []DataTypeName{"string"},
-		Description: "single word data",
-		Validator:   func(d Data) bool { return true }},
-	"text": {TypeName: "text",
-		ParentTypes: []DataTypeName{"string"},
-		Description: "long string with words",
-		Validator:   func(d Data) bool { return true }},
-	"categorical": {TypeName: "categorical",
+		Description: "numerical value"},
+	DataType{	
+		TypeName: "categorical",
 		ParentTypes: []DataTypeName{"number"},
-		Description: "unordered data corresponding to categories",
-		Validator:   func(d Data) bool { return true }},
-	"int": {TypeName: "int",
-		ParentTypes: []DataTypeName{"number"},
-		Description: "numbered data with a meaningful ordering",
-		Validator:   func(d Data) bool { return true }},
-	"real": {TypeName: "real",
-		ParentTypes: []DataTypeName{"ordinal"},
-		Description: "numbered data with meaningful fractional values",
-		Validator:   func(d Data) bool { return true }},
-	"0,1": {TypeName: "0,1",
+		Description: "unordered data corresponding to categories"},
+	DataType{
+		TypeName: "int",
+		ParentTypes: []DataTypeName{"number","ordinal"},
+		Description: "numbered data with a meaningful ordering"},
+	DataType{
+		TypeName: "real",
+		ParentTypes: []DataTypeName{"number","ordinal"},
+		Description: "numbered data with meaningful fractional values"},
+	DataType{
+		TypeName: "0,1",
 		ParentTypes: []DataTypeName{"categorical", "int"},
-		Description: "0, 1 binary data",
-		Validator:   func(d Data) bool { return true }},
-	"-1,1": {TypeName: "-1,1",
+		Description: "0, 1 binary data"},
+	DataType{	
+		TypeName: "-1,1",
 		ParentTypes: []DataTypeName{"categorical", "int"},
-		Description: "row based number data",
-		Validator:   func(d Data) bool { return true }},
+		Description: "row based number data"},
 }
+
