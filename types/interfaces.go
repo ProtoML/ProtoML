@@ -69,8 +69,8 @@ type DatasetColumns struct {
 type DatasetFile struct {
 	Path       string
 	FileFormat string
-	NRows      uint
-	NCols      uint
+	NRows      int
+	NCols      int
 	Columns    DatasetColumns
 }
 
@@ -81,8 +81,8 @@ type DataGroupColumns struct {
 
 type DataGroup struct {
 	FileFormat string
-	NRows      uint
-	NCols      uint
+	NRows      int
+	NCols      int
 	Columns    DataGroupColumns
 	Source     string
 }

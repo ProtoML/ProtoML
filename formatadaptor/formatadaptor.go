@@ -17,7 +17,7 @@ type FileFormatAdaptor interface {
 	Join(srcFiles []string, dstFile string) (err error)
 	ToRaw(srcFile string, dstFile string) (err error)
 	FromRaw(srcFile string, dstFile string) (err error)
-	Shape(path string) (nrows, ncols uint, err error)
+	Shape(path string) (nrows, ncols int, err error)
 }
 
 type FileFormatCollection struct {
@@ -49,7 +49,7 @@ func (fc *FileFormatCollection) GetAdaptor(formattype string) (adaptor FileForma
 		err = errors.New(fmt.Sprintf("Format type %s not registered", formattype))
 		adaptor = nil
 	}
-	return
+	return adaptor, err
 }
 
 func (fc *FileFormatCollection) ListAdaptors() (adaptors []string) {
@@ -60,7 +60,7 @@ func (fc *FileFormatCollection) ListAdaptors() (adaptors []string) {
 }
 
 // segment columns into data groups and a map of group index to original column index
-func SplitColumns(cols types.DatasetColumns, ncols uint) (groups []types.DataGroupColumns, groupColsIndex [][]int) {                         
+func SplitColumns(cols types.DatasetColumns, ncols int) (groups []types.DataGroupColumns, groupColsIndex [][]int) {                         
 	// tag: [index] -> index: [tag]
 	indexTags := make(map[int][]string)
 	for tag, indexes := range cols.Tags {
@@ -69,7 +69,7 @@ func SplitColumns(cols types.DatasetColumns, ncols uint) (groups []types.DataGro
 		}
 	}
 	groups = make([]types.DataGroupColumns, len(cols.ExclusiveTypes))
-	groupColsIndex = make([][]int, len(cols.ExclusiveTypes))
+	groupColsIndex = make([][]int, len(cols.ExclusiveTypes)) //group index -> [raw col index]
 	i := 0
 	for typ, indexes := range cols.ExclusiveTypes {
 		groups[i].ExclusiveType = typ
@@ -87,7 +87,7 @@ func SplitColumns(cols types.DatasetColumns, ncols uint) (groups []types.DataGro
 	return
 }
 
-func (fc *FileFormatCollection) Split(dataset types.DatasetFile, dstDir string) (dataGroups []types.DataGroup, singleColumns []string, groupColsIndex [][]int, err error) {
+func (fc *FileFormatCollection) Split(dataset types.DatasetFile, dstDir string) (dataGroups []types.DataGroup, splitFiles []string, groupColsIndex [][]int, err error) {
 	if _, ok := fc.adaptors[dataset.FileFormat]; !ok {
 		err = errors.New(fmt.Sprintf("Format type %s not registered", dataset.FileFormat))
 		return
@@ -102,6 +102,9 @@ func (fc *FileFormatCollection) Split(dataset types.DatasetFile, dstDir string) 
 	if nrows != dataset.NRows {
 		err = errors.New(fmt.Sprintf("Dataset number of rows(%d) and the number of rows the adaptor found(%d) are different", dataset.NRows, nrows))
 	}
+	if err != nil {
+		return
+	}
 	if ncols != dataset.NCols {
 		err = errors.New(fmt.Sprintf("Dataset number of columns(%d) and the number of columns the adaptor found(%d) are different", dataset.NCols, ncols))
 	}
@@ -110,6 +113,7 @@ func (fc *FileFormatCollection) Split(dataset types.DatasetFile, dstDir string) 
 	}
 
 	// construct DataGroups and index map to groups
+	// groupColsIndex maps groupIndex to raw column index
 	groupCols, groupColsIndex := SplitColumns(dataset.Columns, ncols)
 	logger.LogDebug(LOGTAG, "DataGroup Columns for %s", path.Base(dataset.Path))
 	for _, col := range groupCols {
@@ -118,7 +122,7 @@ func (fc *FileFormatCollection) Split(dataset types.DatasetFile, dstDir string) 
 	
 
 	// split dataset into columns
-	splitFiles := make([]string,dataset.NCols)
+	splitFiles = make([]string,dataset.NCols)
 	for i, _ := range splitFiles {
 		splitFiles[i] = path.Join(dstDir,fmt.Sprintf("%010d.%s",i,dataset.FileFormat))
 	}
@@ -126,36 +130,37 @@ func (fc *FileFormatCollection) Split(dataset types.DatasetFile, dstDir string) 
 	if err != nil {
 		return
 	}
-	if int(ncols) != len(splitFiles) {
+	if ncols != len(splitFiles) {
 		err = errors.New(fmt.Sprintf("Format adaptor for %s did not split into single columns, found %d column files while needing %d columns", dataset.FileFormat, len(splitFiles), ncols))
 		return
 	}
-	var dncols, dnrows uint
+	var dncols, dnrows int
 	for _, sfile := range splitFiles {
 		dncols, dnrows, err = adaptor.Shape(sfile)
 		if err != nil {
 			return
 		}
 		if dncols != 1 {
-			err = errors.New(fmt.Sprintf("Format adaptor for %s did not split into single columns", dataset.FileFormat))
+			err = errors.New(fmt.Sprintf("Format adaptor for %s did not split into single columns, found %d column files while needing 1 column", dataset.FileFormat, dncols))
 			return
 		}
 		if dnrows != nrows {
-			err = errors.New(fmt.Sprintf("Format adaptor for %s did not conserve number rows", dataset.FileFormat))
+			err = errors.New(fmt.Sprintf("Format adaptor for %s did not conserve number rows, found %d rows while needing %d rows", dataset.FileFormat, dnrows, nrows))
 			return
 		}
 	}
 
 	// construct DataGroups
-	dataGroups = make([]types.DataGroup, ncols)
+	dataGroups = make([]types.DataGroup, len(groupCols))
 	for i, _ := range groupCols {
 		group := groupCols[i]
-dataGroup := types.DataGroup{}
+		dataGroup := types.DataGroup{}
 		dataGroup.FileFormat = dataset.FileFormat
-		dataGroup.NCols = uint(len(group.Tags))
+		dataGroup.NCols = len(group.Tags)
 		dataGroup.NRows = nrows
 		dataGroup.Columns = group
 		dataGroup.Source = path.Base(dataset.Path)
+		dataGroups[i] = dataGroup
 	}
 	return
 }

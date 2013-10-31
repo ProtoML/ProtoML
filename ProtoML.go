@@ -4,7 +4,7 @@ import (
 	"flag"
 	"github.com/ProtoML/ProtoML/logger"
 	"github.com/ProtoML/ProtoML/protomlserver"
-	"github.com/ProtoML/ProtoML-persist/persist"
+	"github.com/ProtoML/ProtoML-persist/persist/persistparsers"
 	"os"
 	"log"
 )
@@ -18,7 +18,7 @@ func main() {
 	flag.Parse()
  
 	// load config
-	config, err := persist.LoadConfig(configFilePath)
+	config, err := persistparsers.LoadConfig(configFilePath)
 	if err != nil {
 		logger.LogFatal(LOGTAG, err, "Cannot open configuration file %s", configFilePath)
 		return

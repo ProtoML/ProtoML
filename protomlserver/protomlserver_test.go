@@ -7,7 +7,7 @@ import (
 	"github.com/ProtoML/ProtoML/utils/osutils"
 	"path"
 	"time"
-	"github.com/ProtoML/ProtoML-persist/persist"
+	"github.com/ProtoML/ProtoML-persist/persist/persistparsers"
 	"github.com/ProtoML/ProtoML/tests"
 	"fmt"
 )
@@ -49,7 +49,7 @@ func DatasetTestBase(t *testing.T, protomlDir, protomlJson string) {
 	}
 
 	// load config
-	config, err := persist.LoadConfig(configFilePath)
+	config, err := persistparsers.LoadConfig(configFilePath)
 	if err != nil {
 		t.Fatalf(CONFIG_ERR_MSG, path.Base(configFilePath), err)
 		return
@@ -64,10 +64,10 @@ func DatasetTestBase(t *testing.T, protomlDir, protomlJson string) {
 		t.Fatalf("ProtoML Server Error\nerror: %s",err)
 	}
 }
-
+/*
 func TestEmpty(t *testing.T) {
 	DatasetTestBase(t, EMPTY_DIR, "ProtoML.json")
-}
+}*/
 
 func SyntheticTestBase(t *testing.T, protomlJson string) {
 	DatasetTestBase(t, SYNTHETIC_DIR, protomlJson)

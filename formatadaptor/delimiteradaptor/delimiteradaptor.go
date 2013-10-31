@@ -7,10 +7,7 @@ import (
 	"io"
 	"github.com/ProtoML/ProtoML/utils/osutils"
 	"github.com/ProtoML/ProtoML/dependency"
-)
- 
-const (
-	MAX_INPLACE_ELEMENTS = 10000 // Maximum number of elements spread across channels
+	"github.com/ProtoML/ProtoML/logger"
 )
 
 type DelimiterAdaptor struct {
@@ -18,6 +15,7 @@ type DelimiterAdaptor struct {
 }
  
 func New(delimiter rune) *DelimiterAdaptor {
+	logger.LogInfo("DEMI", "Making delimiter adaptor with %s", delimiter)
 	return &DelimiterAdaptor{delimiter}
 }
 
@@ -32,7 +30,6 @@ func (adaptor *DelimiterAdaptor) Split(srcPath string, dstPaths []string) (err e
 		err = errors.New("Output split files are over a non-positive number of columns")
 		return
 	}
-	chanSize := MAX_INPLACE_ELEMENTS / ncols + 1
 
 	// setup files and readers
 	srcFile, err := os.Open(srcPath)
@@ -45,20 +42,20 @@ func (adaptor *DelimiterAdaptor) Split(srcPath string, dstPaths []string) (err e
 	
 	writers := make([]*csv.Writer,ncols)
 	writerQueue := make([]chan string,ncols)
-	writerErrors := make(chan error)
+	writerErrors := make([]chan error,ncols)
 	for i, dstPath := range dstPaths {
 		dstFile, err := osutils.TouchFile(dstPath)
 		if err != nil { return err }
 		defer dstFile.Close()
 		writers[i] = csv.NewWriter(dstFile)
-		writerQueue := make(chan string, chanSize)
-		defer close(writerQueue)
+		writerQueue[i] = make(chan string)
+		defer close(writerQueue[i])
+		writerErrors[i] = make(chan error)
 	}
 	
 	// setup column writer threads
 	for i, _ := range writers {
-		go func(writer *csv.Writer, writeQueue <-chan string, errChan chan<- error, bufferMax int) {
-			bufferCount := 0
+		go func(writer *csv.Writer, writeQueue <-chan string, errChan chan<- error) {
 			for {
 				select {
 				case val, ok := <- writeQueue:
@@ -72,28 +69,42 @@ func (adaptor *DelimiterAdaptor) Split(srcPath string, dstPaths []string) (err e
 						errChan <- err
 						return
 					}
-					// flush on full buffer
-					if bufferCount++; bufferCount >= bufferMax {
-						writer.Flush()	
-						bufferCount = 0
-					}
+					writer.Flush()
+					errChan <- err
 				}
 			}
-		}(writers[i], writerQueue[i], writerErrors, chanSize/2+1)
+		}(writers[i], writerQueue[i], writerErrors[i])
 	}
 
 	// read/concurrent write loop
-	row, err := reader.Read()
-	for err != nil {
+	err = nil
+	var row []string
+	for err == nil {
+		row, err = reader.Read()
+		if err != nil {
+			break
+		}
 		if len(row) != ncols {
 			return errors.New("Non-uniform columns in source file in split")
 		}
 		for i, val := range row {
 			writerQueue[i] <- val
 		}
-		select {
-		case err, _ := <- writerErrors:
-			return err
+		// wait for writers to complete
+		writerCompletes := ncols
+		for {
+			for _, errChan := range writerErrors {
+				select {
+				case err, _ := <- errChan:
+					if err != nil {
+						return err
+					}
+					writerCompletes -= 1
+				}
+			}
+			if writerCompletes == 0 {
+				break
+			}
 		}
 	}
 	if err != nil && err != io.EOF {
@@ -216,28 +227,28 @@ func (adaptor *DelimiterAdaptor) Join(srcPaths []string, dstPath string) (err er
 	return nil
 }
  
-func (adaptor *DelimiterAdaptor) Shape(path string) (ncols, nrows uint, err error) {
+func (adaptor *DelimiterAdaptor) Shape(path string) (ncols, nrows int, err error) {
 	// setup files and readers
 	srcFile, err := os.Open(path)
 	if err != nil { return }
 	defer srcFile.Close()
- 
+
 	reader := csv.NewReader(srcFile)
 	reader.Comma = adaptor.delimiter
 	
 	// stream through file
-	ncols = 0  
+	nrows = 0  
 	_, err = reader.Read()
-	for err != nil {
-		ncols += 1
+	for err == nil {
+		nrows += 1
 		_, err = reader.Read()
+	}	
+	if  err != nil && err != io.EOF {
+		return ncols, nrows, err
 	}
 	
-	if err != io.EOF {
-		return
-	}
-
-	nrows = uint(reader.FieldsPerRecord)
+	err = nil
+	ncols = reader.FieldsPerRecord
 	return
 }
 
