@@ -3,6 +3,8 @@ package tests
 import (
 	"testing"
 	"github.com/ProtoML/ProtoML/logger"
+	"log"
+	"os"
 )
 
 type TestLogger struct {
@@ -31,5 +33,6 @@ func (tl *TestLogger) SetPrefix(string) {
 
 func SetupLogger(t *testing.T) {
 	logger.Debug = true
-	logger.Logger = &TestLogger{t}
+	//logger.Logger = &TestLogger{t}
+	logger.Logger = log.New(os.Stderr, "", log.Ldate|log.Ltime)
 }

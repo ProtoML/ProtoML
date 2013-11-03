@@ -2,9 +2,13 @@ package types
 
 // list of default data types
 var DefaultDataTypes = []DataType{
+	DataType{
+		TypeName: "any",
+		ParentTypes: []DataTypeName{},
+		Description: "any type of data"},
 	DataType{	
 		TypeName: "string",
-		ParentTypes: []DataTypeName{},
+		ParentTypes: []DataTypeName{"any"},
 		Description: "any string data"},
 	DataType{	
 		TypeName: "YYYY-MM-DD",
@@ -20,11 +24,11 @@ var DefaultDataTypes = []DataType{
 		Description: "long string with words"},
 	DataType{
 		TypeName: "ordinal",
-		ParentTypes: []DataTypeName{},
+		ParentTypes: []DataTypeName{"any"},
 		Description: "data that has an order"},
 	DataType{
 		TypeName: "number",
-		ParentTypes: []DataTypeName{},
+		ParentTypes: []DataTypeName{"any"},
 		Description: "numerical value"},
 	DataType{	
 		TypeName: "categorical",

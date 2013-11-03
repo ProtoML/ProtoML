@@ -35,7 +35,7 @@ const (
 	SYNTHETIC_DIR = "ProtoML/tests/testsets/synthetic"
 )
 
-func DatasetTestBase(t *testing.T, protomlDir, protomlJson string) {
+func DatasetTestBase(t *testing.T, protomlDir, protomlJson string) (quitChan chan bool){
 	tests.SetupLogger(t)
 
 	// setup test directory and config
@@ -59,21 +59,25 @@ func DatasetTestBase(t *testing.T, protomlDir, protomlJson string) {
 	config.LocalPersistStorage.ElasticPort = 9400
 
 	// start server
-	err = ProtoMLServer(config)
+	quitChan, err = ProtoMLServer(config)
 	if err != nil {
 		t.Fatalf("ProtoML Server Error\nerror: %s",err)
 	}
+	return quitChan
 }
 /*
 func TestEmpty(t *testing.T) {
-	DatasetTestBase(t, EMPTY_DIR, "ProtoML.json")
-}*/
-
-func SyntheticTestBase(t *testing.T, protomlJson string) {
-	DatasetTestBase(t, SYNTHETIC_DIR, protomlJson)
+	quitChan := DatasetTestBase(t, EMPTY_DIR, "ProtoML.json")
+	quitChan <- true
+}
+*/
+func SyntheticTestBase(t *testing.T, protomlJson string)(quitChan chan bool) {
+	return DatasetTestBase(t, SYNTHETIC_DIR, protomlJson)
 }
 
+
 func TestSyntheticStartup(t *testing.T) {
-	SyntheticTestBase(t, "ProtoML_Startup.json")
+	quitChan := SyntheticTestBase(t, "ProtoML_Startup.json")
+	<- quitChan
 }
 

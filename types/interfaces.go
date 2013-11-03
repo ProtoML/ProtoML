@@ -8,7 +8,10 @@ type DataType struct {
 	Description string
 }
 
-type TransformParameter []string
+type TransformParameter struct {
+	Default string // the default value of parameter
+	Description string // description of the parameter
+}
 
 type TransformHyperParameter struct {
 	Default string // the default value of parameter
@@ -19,21 +22,14 @@ type TransformHyperParameter struct {
 
 
 type ConstraintSexp []string
-/*
-type DataConstraint struct {
-	ExclusiveType DataTypeName
-	Restriction   []ConstraintSexp // String restriction as specified, to be interpreted by type checker
-}
-*/
 
 type FileParameter struct {
-	Path				string
+	ValidTypes      []DataTypeName
 	Format			[]string // as long as the format of the file is in here it's good
 	Description string
 }
 
 type StateParameter struct {
-	Path string
 	Format []string
 	Description string
 }
@@ -55,17 +51,18 @@ type TransformFunction struct {
 }
 
 type Transform struct {
+	Name string //transform name
+	Template string //transform original template
+	// parameters
 	PrimaryParameters      map[string]TransformParameter
 	PrimaryHyperParameters map[string]TransformHyperParameter
-	// a transform to copy
-	Template string
-	// script to run
+	// command to run
 	PrimaryExec string
 	// help text
 	Documentation string
 	// functions
 	Functions map[string]TransformFunction
-	// state formate created and accepted
+	// data/state format created and accepted
 	PrimaryInputs map[string]FileParameter
 	PrimaryOutputs map[string]FileParameter
 	PrimaryInputStates map[string]StateParameter
@@ -75,7 +72,7 @@ type Transform struct {
 type InducedParameter string
 
 type InducedFileParameter struct {
-	Data DataGroup
+	Data []DataGroup
 	Path string
 	Format string
 }

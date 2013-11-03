@@ -29,7 +29,8 @@ func main() {
 	logger.Logger = log.New(os.Stdout, "", log.Ldate|log.Ltime)
 
 	// start server
-	err = protomlserver.ProtoMLServer(config)
+	quitChan, err := protomlserver.ProtoMLServer(config)
+	defer func() { quitChan <- true }() // close server
 	if err != nil {
 		logger.LogFatal(LOGTAG, err, "ProtoML Server Failed")
 	}

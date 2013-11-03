@@ -3,83 +3,75 @@ package api
 import (
 	"fmt"
 	"net/http"
+	//"github.com/ProtoML/ProtoML-persist/persist/elastic"
+	"github.com/ProtoML/ProtoML/logger"
 	"github.com/ProtoML/ProtoML-persist/persist"
+	"html"
 ) 
 
 const (
-	APIDatatype                        = "/datatype"
-	APITransform                       = "/transform"
-	APITransformAddChild               = "/transform/add/child"
-
-	APIDatatypePrefix                  = "/datatype/"
-	APITransformPrefix                 = "/transform/"
-	APITransformDeletePrefix           = "/transform/delete/"
-	APITransformUpdatePrefix           = "/transform/update/"
-
-	APIDatatypePrefixLen               = len(APIDatatypePrefix)
-	APITransformPrefixLen              = len(APITransformPrefix)
-	APITransformDeletePrefixLen        = len(APITransformDeletePrefix)
-	APITransformUpdatePrefixLen        = len(APITransformUpdatePrefix)
-
-	APIDefaultPort                     = 8080
+	LOGTAG                             = "API-Server"
+	DEFAULT_API_PORT                     = 8080
+	SERVER_CLOSE_PANIC_ERROR           = "Closing webserver, ignore panic"
 )
 
-type serverState struct {
-	store *persist.PersistStorage
+type APIServerState struct {
+	Port int
+	poisonPill chan bool
+	errChan chan error
+	Store persist.PersistStorage
 }
 
-func (server* serverState) unrecognizedCall(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Call Unrecognized")
+func New(port int, store persist.PersistStorage)(*APIServerState) {
+	return &APIServerState{Port:port,Store:store}
 }
 
-func (server* serverState) handleDatatype(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Expecting GET on all datatypes");
+// Used to halt server due to non-trivial gracefull server stopping
+func (server *APIServerState) Close() {
+	server.poisonPill <- true // pop poison pill to panic then recover
 }
 
-func (server* serverState)  handleDatatypePrefix(w http.ResponseWriter, r *http.Request) {
-	id := r.URL.Path[APIDatatypePrefixLen:]
-	fmt.Fprintf(w, "Expecting GET on datatype with id %s", id)
-}
+// Start api server with ability to shutdown
+func (server *APIServerState) Start() (errChan chan error) {
+	http.HandleFunc("/", server.index)
+	http.HandleFunc("/foo", server.unrecognizedCall)
 
-func (server* serverState) handleTransform(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Expecting GET on all transforms")
-}
 
-func (server* serverState) handleTransformPrefix(w http.ResponseWriter, r *http.Request) {
-	id := r.URL.Path[APITransformPrefixLen:]
-	fmt.Fprintf(w, "Expecting GET on transform with id %s", id)
-}
-
-func (server* serverState) handleTransformAddRoot(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Expecting POST to add a root")
-}
-
-func (server* serverState) handleTransformAddChild(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Expecting POST to add a child")
-}
-
-func (server* serverState) handleTransformDelete(w http.ResponseWriter, r *http.Request) {
-	id := r.URL.Path[APITransformDeletePrefixLen:]
-	fmt.Fprintf(w, "Expecting DELETE on transform with id %s", id)
-}
-
-func (server* serverState) handleTransformUpdate(w http.ResponseWriter, r *http.Request) {
-	id := r.URL.Path[APITransformUpdatePrefixLen:]
-	fmt.Fprintf(w, "Expecting UPDATE on transform with id %s", id)
-}
-
-func APIServer(port int, store *persist.PersistStorage) (err error) {
-	apiServerState := &serverState{store}
-
-	http.HandleFunc("/", apiServerState.unrecognizedCall)
-	http.HandleFunc(APIDatatype,                   apiServerState.handleDatatype)            // GET
-	http.HandleFunc(APIDatatypePrefix,             apiServerState.handleDatatypePrefix)      // GET
-	http.HandleFunc(APITransform,                  apiServerState.handleTransform)           // GET
-	http.HandleFunc(APITransformPrefix,            apiServerState.handleTransformPrefix)     // GET
-	http.HandleFunc(APITransformAddChild,          apiServerState.handleTransformAddChild)   // POST
-	http.HandleFunc(APITransformDeletePrefix,      apiServerState.handleTransformDelete)     // DELETE
-	http.HandleFunc(APITransformUpdatePrefix,      apiServerState.handleTransformUpdate)     // UPDATE
-	err = http.ListenAndServe(":"+string(port), nil)
-	return
+	server.errChan = make(chan error)
+	// main server
+	HTTP := func() {
+		logger.LogInfo(LOGTAG,"Starting API HTTP Server")
+		err := http.ListenAndServe(fmt.Sprintf(":%d",server.Port), nil)
+		server.errChan <- err
+	}
+	// closing halt bomb
+	server.poisonPill = make(chan bool)
+	Panic := func(PoisonPill chan bool) {
+		<-PoisonPill 
+		panic(SERVER_CLOSE_PANIC_ERROR)
+	}
+	// stopping bomb and shutdown api server
+	Recover := func(){
+		recover()
+		close(server.errChan)
+	}
+	// run in goroutine to allow for return
+	go func() {
+		defer server.Store.Close()
+		defer Recover()
+		go HTTP()
+		Panic(server.poisonPill)
+	}()
+	
+	return server.errChan
 } 
+
+func (server* APIServerState) unrecognizedCall(w http.ResponseWriter, r *http.Request) {
+	http.Redirect(w, r, "/error", http.StatusNotFound)
+	return
+}
+
+func  (server* APIServerState) index(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Hello, %q", html.EscapeString(r.URL.Path))
+}
 

@@ -64,8 +64,8 @@ func PathExists(fullPath string) bool {
 
 func ListFilesInDirectory(directory string) (list []string, err error) {
 	directoryFileDescriptor, err := os.Open(directory)
-	if err != nil {	return }
 	defer directoryFileDescriptor.Close()
+	if err != nil {	return }
 
 	files, err := directoryFileDescriptor.Readdir(0)
 	list = make([]string, len(files))

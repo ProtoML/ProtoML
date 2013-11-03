@@ -7,7 +7,6 @@ import (
 	"io"
 	"github.com/ProtoML/ProtoML/utils/osutils"
 	"github.com/ProtoML/ProtoML/dependency"
-	"github.com/ProtoML/ProtoML/logger"
 )
 
 type DelimiterAdaptor struct {
@@ -15,7 +14,6 @@ type DelimiterAdaptor struct {
 }
  
 func New(delimiter rune) *DelimiterAdaptor {
-	logger.LogInfo("DEMI", "Making delimiter adaptor with %s", delimiter)
 	return &DelimiterAdaptor{delimiter}
 }
 
