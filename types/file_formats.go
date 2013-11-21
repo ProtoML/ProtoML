@@ -1,5 +1,5 @@
 package types
-
+/*
 var FileFormats = map[string]FileFormat{
 	"txt": {FormatName: "txt",
 		Description: "Text file",
@@ -30,5 +30,5 @@ var FileFormats = map[string]FileFormat{
 		Validator:   func(d Data) bool { return true }},
 	"arff": {FormatName: "arff",
 		Description: "Weka format",
-		Validator:   func(d Data) bool { return true }},
-}
+		Validator:   func(d Data) bool { return true }}
+}*/

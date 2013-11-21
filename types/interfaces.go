@@ -6,62 +6,144 @@ type DataType struct {
 	TypeName    DataTypeName
 	ParentTypes []DataTypeName
 	Description string
-	Validator   func(Data) bool // function to test if data matches data type
-}
-
-type FileFormat struct {
-	FormatName  string
-	Description string
-	Validator   func(Data) bool
 }
 
 type TransformParameter struct {
-	ParameterName string   // name of the parameter
-	Values        []string // only filed in for enum parameters
-	Distribution  string   // only filled in for numerical parameters
-	NoConstraint  bool     // only filled in for arbitrary string parameters
-	Description   string   // description of the parameter
+	Default string // the default value of parameter
+	Description string // description of the parameter
 }
 
-type DataConstraint struct {
-	ExclusiveType DataTypeName
-	FileFormat    FileFormat
-	NCols         uint
+type TransformHyperParameter struct {
+	Default string // the default value of parameter
+	Type        []DataTypeName   // will check if it is of one of the types
+	Constraints []ConstraintSexp // list of constraints
+	Description string // description of the parameter
+}
+
+
+type ConstraintSexp []string
+
+type FileParameter struct {
+	ValidTypes      []DataTypeName
+	Format			[]string // as long as the format of the file is in here it's good
+	Description string
+	Optional string
+}
+
+type StateParameter struct {
+	Format []string
+	Description string
+	Optional string
+}
+
+type TransformFunction struct {
+	// function name, description
+	Description string
+	// transform parameters
+	Parameters      map[string]TransformParameter
+	HyperParameters map[string]TransformHyperParameter
+	// script to run
+	Exec string
+	// input definitions
+	Inputs map[string]FileParameter
+	// output definitions
+	Outputs map[string]FileParameter
+	InputStates map[string]StateParameter
+	OutputStates map[string]StateParameter
 }
 
 type Transform struct {
-	// a transform to copy
-	Template string
+	Name string //transform name
+	Template string //transform original template
+	// parameters
+	PrimaryParameters      map[string]TransformParameter
+	PrimaryHyperParameters map[string]TransformHyperParameter
+	// command to run
+	PrimaryExec string
 	// help text
 	Documentation string
-	// whether or not to keep the template's parameters
-	OverwriteParameters bool
-	// transform parameters
-	Parameters []TransformParameter
-	// input definitions
-	Input []DataConstraint
-	// output definitions
-	Output []DataConstraint
+	// functions
+	Functions map[string]TransformFunction
+	// data/state format created and accepted
+	PrimaryInputs map[string]FileParameter
+	PrimaryOutputs map[string]FileParameter
+	PrimaryInputStates map[string]StateParameter
+	PrimaryOutputStates map[string]StateParameter
 }
 
-type Data struct {
-	DataId        string
-	ExclusiveType DataTypeName
-	FileFormat    FileFormat
-	NRows         uint
-	NCols         uint
+type InducedParameter string
+
+type ElasticID string
+
+type InducedFileParameter struct {
+	Data []DataGroup
+	Path string
+	Format string
 }
 
-type RunRequest struct {
-	DataNamespace  string   // namespace of the data
-	TransformName  string   // name of transform
-	JsonParameters string   // filename of json containing parameters
-	Data           []Data   // input data
-	Tags           []string // tags to add to the database
+type InducedStateParameter struct {
+	Format string
+	Path string
+}
+
+type InducedHyperParameter struct {
+	Type string
+	Value string
 }
 
 type InducedTransform struct {
-	Parameters map[string]string // partially applied valid parameters
-	Input      []DataConstraint  // input definitions
-	Output     []DataConstraint  // output definitions
+	Name            string
+	TemplateID      string
+	Function				string
+	Parameters      map[string]InducedParameter // inserted valid parameters. Parameters are unchecked strings
+	HyperParameters map[string]InducedHyperParameter // inserted valid hyperparameters
+	// input definitions
+	InputsIDs       map[string][]ElasticID
+	// output definitions
+	OutputsIDs      map[string][]ElasticID
+	// state definitions
+	InputStatesIDs   	map[string]ElasticID
+	InputStates			map[string]InducedStateParameter
+	OutputStatesIDs		map[string]ElasticID
+
+	// denotes valid transform
+	Error string
+
+	// runtime members
+	ElasticID       string
+	Template        string
+	Exec            string
+	Inputs          map[string]InducedFileParameter
+	Outputs         map[string]InducedFileParameter
+	OutputStates		map[string]InducedStateParameter
+}
+
+
+type DataColumnTypeGroup map[DataTypeName][]int
+type DataColumnTagGroup map[string][]int
+
+type DatasetColumns struct {
+	ExclusiveTypes DataColumnTypeGroup
+	Tags           DataColumnTagGroup
+}
+
+type DatasetFile struct {
+	Path       string
+	FileFormat string
+	NRows      int
+	NCols      int
+	Columns    DatasetColumns
+}
+
+type DataGroupColumns struct {
+	ExclusiveType DataTypeName
+	Tags          [][]string
+}
+
+type DataGroup struct {
+	FileFormat string
+	NRows      int
+	NCols      int
+	Columns    DataGroupColumns
+	Source     string
 }
