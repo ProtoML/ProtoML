@@ -17,7 +17,7 @@ type TransformHyperParameter struct {
 	Default string // the default value of parameter
 	Type        []DataTypeName   // will check if it is of one of the types
 	Constraints []ConstraintSexp // list of constraints
-	//Description string // description of the parameter
+	Description string // description of the parameter
 }
 
 
@@ -71,6 +71,8 @@ type Transform struct {
 
 type InducedParameter string
 
+type ElasticID string
+
 type InducedFileParameter struct {
 	Data []DataGroup
 	Path string
@@ -82,20 +84,32 @@ type InducedStateParameter struct {
 	Path string
 }
 
-type InducedHyperParameter struct {
-	PrimitiveType string
-	Value string
-}
+type InducedHyperParameter string
 
 type InducedTransform struct {
-	Template        string
-	Exec						string
-	Function				string
+	Name            string
+	TemplateID      string
+	Function		string
 	Parameters      map[string]InducedParameter // inserted valid parameters. Parameters are unchecked strings
 	HyperParameters map[string]InducedHyperParameter // inserted valid hyperparameters
-	Inputs          map[string]InducedFileParameter // input definitions
-	Outputs         map[string]InducedFileParameter // output definitions
+	// input definitions
+	InputsIDs       map[string][]ElasticID
+	// output definitions
+	OutputsIDs      map[string][]ElasticID
+	// state definitions
+	InputStatesIDs   	map[string]ElasticID
 	InputStates			map[string]InducedStateParameter
+	OutputStatesIDs		map[string]ElasticID
+
+	// denotes valid transform
+	error string
+
+	// runtime members
+	ElasticID       string
+	Template        string
+	Exec            string
+	Inputs          map[string]InducedFileParameter
+	Outputs         map[string]InducedFileParameter
 	OutputStates		map[string]InducedStateParameter
 }
 
