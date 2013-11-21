@@ -24,5 +24,7 @@ _testmain.go
 # emacs
 *~
 
+# vim
+*.sw
 
 .diff
