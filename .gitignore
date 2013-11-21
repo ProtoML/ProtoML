@@ -25,6 +25,7 @@ _testmain.go
 *~
 
 # vim
-*.sw
+*.swp
+*.swo
 
 .diff
