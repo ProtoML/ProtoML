@@ -84,12 +84,15 @@ type InducedStateParameter struct {
 	Path string
 }
 
-type InducedHyperParameter string
+type InducedHyperParameter struct {
+	Type string
+	Value string
+}
 
 type InducedTransform struct {
 	Name            string
 	TemplateID      string
-	Function		string
+	Function				string
 	Parameters      map[string]InducedParameter // inserted valid parameters. Parameters are unchecked strings
 	HyperParameters map[string]InducedHyperParameter // inserted valid hyperparameters
 	// input definitions
