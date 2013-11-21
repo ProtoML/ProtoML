@@ -27,11 +27,13 @@ type FileParameter struct {
 	ValidTypes      []DataTypeName
 	Format			[]string // as long as the format of the file is in here it's good
 	Description string
+	Optional string
 }
 
 type StateParameter struct {
 	Format []string
 	Description string
+	Optional string
 }
 
 type TransformFunction struct {
@@ -105,7 +107,7 @@ type InducedTransform struct {
 	OutputStatesIDs		map[string]ElasticID
 
 	// denotes valid transform
-	error string
+	Error string
 
 	// runtime members
 	ElasticID       string
