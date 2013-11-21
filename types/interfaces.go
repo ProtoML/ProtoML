@@ -27,11 +27,13 @@ type FileParameter struct {
 	ValidTypes      []DataTypeName
 	Format			[]string // as long as the format of the file is in here it's good
 	Description string
+	Optional string
 }
 
 type StateParameter struct {
 	Format []string
 	Description string
+	Optional string
 }
 
 type TransformFunction struct {
@@ -84,12 +86,15 @@ type InducedStateParameter struct {
 	Path string
 }
 
-type InducedHyperParameter string
+type InducedHyperParameter struct {
+	Type string
+	Value string
+}
 
 type InducedTransform struct {
 	Name            string
 	TemplateID      string
-	Function		string
+	Function				string
 	Parameters      map[string]InducedParameter // inserted valid parameters. Parameters are unchecked strings
 	HyperParameters map[string]InducedHyperParameter // inserted valid hyperparameters
 	// input definitions
@@ -102,7 +107,7 @@ type InducedTransform struct {
 	OutputStatesIDs		map[string]ElasticID
 
 	// denotes valid transform
-	error string
+	Error string
 
 	// runtime members
 	ElasticID       string

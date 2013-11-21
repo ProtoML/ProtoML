@@ -14,7 +14,9 @@ const LOGTAG = "ProtoML-Main"
 func main() {
 	// execution flags
 	var configFilePath string
+	var validateTransforms bool
 	flag.StringVar(&configFilePath, "config", "ProtoML.json", "Configuration file")
+	flag.BoolVar(&validateTransforms, "validatetransforms", false, "Used to add and validate all transforms files")
 	flag.Parse()
  
 	// load config
@@ -29,7 +31,7 @@ func main() {
 	logger.Logger = log.New(os.Stdout, "", log.Ldate|log.Ltime)
 
 	// start server
-	quitChan, err := protomlserver.ProtoMLServer(config)
+	quitChan, err := protomlserver.ProtoMLServer(config, validateTransforms)
 	defer func() { quitChan <- true }() // close server
 	if err != nil {
 		logger.LogFatal(LOGTAG, err, "ProtoML Server Failed")

@@ -19,7 +19,7 @@ func errorMsg(err error, msg string) error {
 	return errors.New(fmt.Sprintf("%s: %v", msg, err))
 }
 
-func ProtoMLServer(config persist.Config) (quitChan chan bool, err error) {
+func ProtoMLServer(config persist.Config, validateTransforms bool) (quitChan chan bool, err error) {
 	logger.LogInfo(LOGTAG, "Starting Server")
 
 	// check protoml directory existance
@@ -44,6 +44,9 @@ func ProtoMLServer(config persist.Config) (quitChan chan bool, err error) {
 		return
 	}
 
+	if validateTransforms {
+		return nil, nil
+	}
 	logger.LogInfo(LOGTAG,"Starting API")
 	quitChan = make(chan bool)
 	go func() { // server spin 
