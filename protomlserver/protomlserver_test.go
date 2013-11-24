@@ -59,7 +59,7 @@ func DatasetTestBase(t *testing.T, protomlDir, protomlJson string) (quitChan cha
 	config.LocalPersistStorage.ElasticPort = 9400
 
 	// start server
-	quitChan, err = ProtoMLServer(config)
+	quitChan, err = ProtoMLServer(config, false)
 	if err != nil {
 		t.Fatalf("ProtoML Server Error\nerror: %s",err)
 	}

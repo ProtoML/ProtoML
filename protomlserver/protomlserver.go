@@ -43,7 +43,7 @@ func ProtoMLServer(config persist.Config, validateTransforms bool) (quitChan cha
 		err = errorMsg(err, "Cannot create persistence layer")
 		return
 	}
-
+ 
 	if validateTransforms {
 		return nil, nil
 	}
@@ -56,13 +56,13 @@ func ProtoMLServer(config persist.Config, validateTransforms bool) (quitChan cha
 		logger.LogInfo(LOGTAG,"API Server Up")
 		for {
 			select {
-			case serr, ok := <- errChan:
+			case serr, ok := <- errChan: // wait on server error
 				if !ok {
 					return
 				} else {
 					logger.LogFatal(LOGTAG,serr,"API server hit fatal error")
 				}
-			case <-quitChan:
+			case <-quitChan: // wait on quit signal
 				server.Close()
 			}
 		}

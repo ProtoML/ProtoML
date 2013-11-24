@@ -75,6 +75,11 @@ type InducedParameter string
 
 type ElasticID string
 
+type InducedDataGroup struct {
+	Id ElasticID
+	SelectedView []int
+}
+
 type InducedFileParameter struct {
 	Data []DataGroup
 	Path string
@@ -98,7 +103,7 @@ type InducedTransform struct {
 	Parameters      map[string]InducedParameter // inserted valid parameters. Parameters are unchecked strings
 	HyperParameters map[string]InducedHyperParameter // inserted valid hyperparameters
 	// input definitions
-	InputsIDs       map[string][]ElasticID
+	InputsIDs       map[string][]InducedDataGroup
 	// output definitions
 	OutputsIDs      map[string][]ElasticID
 	// state definitions
