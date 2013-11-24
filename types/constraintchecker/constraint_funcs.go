@@ -3,6 +3,7 @@ package constraintchecker
 import (
 	"strconv"
 	"errors"
+	"github.com/ProtoML/ProtoML/types"
 )
 
 //type ValidateConstraintDefinition func(params ...string) error
@@ -19,6 +20,12 @@ var (
 		"()": ExclusiveBound,
 		"[]": InclusiveBound,
 		"=" : Member,
+	}
+	TypeConvMap = map[types.DataTypeName]func(string)(interface{}, error) {
+		"bool":func (r string) (interface{}, error) {return strconv.ParseBool(r)},
+		"int":func (r string) (interface{}, error) {return paramToInt(r)},
+		"real":func (r string) (interface{}, error) {return paramToFloat(r)},
+		"string":func (r string) (v interface{}, e error) {v = r; return}, // identity
 	}
 )
 

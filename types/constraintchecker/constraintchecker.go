@@ -25,9 +25,30 @@ func CheckHyper(ind map[string]types.InducedHyperParameter, primary, function ma
 				return
 			}
 		}
+		// First we need to see if the type specified is valid for this hyperparameter
+		valid := false
+		for _, typ := range param.Type {
+			if hparam.Type == typ {
+				valid = true
+				break
+			}
+		}
+		if !valid {return}
+
+		// Then we need to try converting it into the type it purports to be
+		tconv, ok := TypeConvMap[hparam.Type]
+		if !ok {
+			err = errors.New(fmt.Sprintf("Unrecognized hyperparameter type %s", hparam.Type))
+			return
+		}
+		_, err = tconv(hparam.Value)
+		if err != nil {
+			valid = false
+			return
+		}
 		constraintlist := param.Constraints
 		// Now go through the constraint list and check that hparam['Value'] satisfies the function
-		valid := false
+		valid = false
 		err = errors.New(fmt.Sprintf("Failed constraint for hyperparameter %s", name))
 		for _, constraint := range constraintlist {
 			constrSymbol := constraint[0]
@@ -43,11 +64,13 @@ func CheckHyper(ind map[string]types.InducedHyperParameter, primary, function ma
 				return
 			}
 			if valid {
+				// It has satisfied some constraint, and so it is valid
 				err = nil
 				break
 			}
 		}
 		if len(constraintlist) == 0 {
+			// Will get to this immediately if the constraint list is empty, which means that anything is valid
 			valid = true
 			err = nil
 		}
@@ -70,7 +93,7 @@ func CheckFile(ind map[string]types.InducedFileParameter, primary, function map[
 		for i, group := range fparam.Data {
 			InducedType := group.Columns.ExclusiveType
 			valid := false
-			for _, TemplateType := range fparamt.ValidTypes {
+			for _, TemplateType := range fparamt.Type {
 				ancestor, _ := elastic.IsDataTypeAncestor(InducedType, TemplateType)
 				if ancestor || InducedType == TemplateType {
 					valid = true

@@ -24,7 +24,7 @@ type TransformHyperParameter struct {
 type ConstraintSexp []string
 
 type FileParameter struct {
-	ValidTypes      []DataTypeName
+	Type      []DataTypeName
 	Format			[]string // as long as the format of the file is in here it's good
 	Description string
 	Optional string
@@ -92,7 +92,7 @@ type InducedStateParameter struct {
 }
 
 type InducedHyperParameter struct {
-	Type string
+	Type DataTypeName
 	Value string
 }
 
