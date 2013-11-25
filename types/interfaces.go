@@ -85,7 +85,6 @@ type InducedDataGroup struct {
 }
 
 type InducedFileParameter struct {
-	Data []DataGroup
 	Path string
 	Format string
 }
