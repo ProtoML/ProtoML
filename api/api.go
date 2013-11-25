@@ -37,6 +37,7 @@ func (server *APIServerState) APIHandleGetGraph(w *rest.ResponseWriter, req *res
 		return
 	}
 	w.WriteJson(graph)
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	return
 }
 
@@ -63,6 +64,7 @@ func (server *APIServerState) APIHandleNewTransform(w *rest.ResponseWriter, req 
 	}
 	s := success{id}
 	w.WriteJson(s)
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	return
 }
 
@@ -93,6 +95,7 @@ func (server *APIServerState) APIHandleUpdateTransform(w *rest.ResponseWriter, r
 	}
 	s := success{itu.Id}
 	w.WriteJson(s)
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	return
 }
 
