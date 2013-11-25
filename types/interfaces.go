@@ -71,9 +71,13 @@ type Transform struct {
 	PrimaryOutputStates map[string]StateParameter
 }
 
-type InducedParameter string
-
 type ElasticID string
+
+type State struct {
+	Source ElasticID
+}
+
+type InducedParameter string
 
 type InducedDataGroup struct {
 	Id ElasticID
@@ -98,7 +102,7 @@ type InducedHyperParameter struct {
 
 type InducedTransform struct {
 	Name            string
-	TemplateID      string
+	TemplateID      ElasticID
 	Function				string
 	Parameters      map[string]InducedParameter // inserted valid parameters. Parameters are unchecked strings
 	HyperParameters map[string]InducedHyperParameter // inserted valid hyperparameters
@@ -108,18 +112,18 @@ type InducedTransform struct {
 	OutputsIDs      map[string][]ElasticID
 	// state definitions
 	InputStatesIDs   	map[string]ElasticID
-	InputStates			map[string]InducedStateParameter
 	OutputStatesIDs		map[string]ElasticID
 
 	// denotes valid transform
 	Error string
 
 	// runtime members
-	ElasticID       string
+	Id       ElasticID
 	Template        string
 	Exec            string
 	Inputs          map[string]InducedFileParameter
 	Outputs         map[string]InducedFileParameter
+	InputStates			map[string]InducedStateParameter
 	OutputStates		map[string]InducedStateParameter
 }
 
@@ -151,4 +155,21 @@ type DataGroup struct {
 	NCols      int
 	Columns    DataGroupColumns
 	Source     string
+}
+
+type ProtoMLVertex [2]string
+func NewProtoMLVertex(typ string, id ElasticID) (v ProtoMLVertex) {
+	v[0] = typ
+	v[1] = string(id)
+	return
+}
+type ProtoMLEdge [2]ProtoMLVertex
+func NewProtoMLEdge(typeSource string, idSource ElasticID, typeSink string, idSink ElasticID) (e ProtoMLEdge) {
+	e[0] = NewProtoMLVertex(typeSource, idSource)
+	e[1] = NewProtoMLVertex(typeSink, idSink)
+	return
+}
+type ProtoMLGraph struct {
+	Vertices []ProtoMLVertex
+	Edges []ProtoMLEdge
 }

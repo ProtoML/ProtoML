@@ -11,6 +11,7 @@ import (
 
 const (
 	APILOGTAG = "API"
+	GRAPHROOT = "/graph"
 	TRANSFORMROOT = "/transform"
 	DATASETROOT = "/dataset"
 )
@@ -21,12 +22,24 @@ type success struct {
 
 func (server *APIServerState) APIHandleFuncs() (routes []rest.Route) {
 	routes = append(routes,
+		rest.Route{"GET", GRAPHROOT, server.APIHandleGetGraph},
 		rest.Route{"POST", TRANSFORMROOT, server.APIHandleNewTransform},
 		rest.Route{"PUT", TRANSFORMROOT+"/:id", server.APIHandleUpdateTransform},
 		rest.Route{"POST", DATASETROOT, server.APIHandleNewDataset},
 	)
 	return
 }
+
+func (server *APIServerState) APIHandleGetGraph(w *rest.ResponseWriter, req *rest.Request) {
+	graph, err := server.Store.GetGraph()
+	if err != nil {
+		rest.Error(w, fmt.Sprintf("Error retrieving graph: %s", err), http.StatusBadRequest)
+		return
+	}
+	w.WriteJson(graph)
+	return
+}
+
 
 func (server *APIServerState) APIHandleNewTransform(w *rest.ResponseWriter, req *rest.Request) {
 	var itransform types.InducedTransform

@@ -9,7 +9,7 @@ func ProtoMLDir() (protomlDir string, err error) {
     // check protoml directory existance
 	protomlDir = os.Getenv("PROTOMLDIR")
 	if len(protomlDir) == 0 {
-		err = errors.New("Cannot find PROTOML_DIR enviroment variable")
+		err = errors.New("Cannot find PROTOMLDIR enviroment variable")
 		return
 	}
 	_, dirErr := os.Stat(protomlDir)
