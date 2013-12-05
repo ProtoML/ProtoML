@@ -26,6 +26,7 @@ Installation
   * `go get https://github.com/ProtoML/ProtoML-transforms`
   * `go get https://github.com/ProtoML/ProtoML-dashboard`
 * Be sure to set your `$PROTOMLDIR` enviroment variable to `$GOPATH/src/github.com/ProtoML`
+* Make sure `$GOPATH/bin` is on the system path
 
 Running
 -------
