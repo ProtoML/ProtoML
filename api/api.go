@@ -3,7 +3,7 @@ package api
 import (
 	"fmt"
 	//"github.com/ProtoML/ProtoML/logger"
-	"github.com/ant0ine/go-json-rest"
+	"github.com/ant0ine/go-json-rest/rest"
 	"github.com/ProtoML/ProtoML-persist/persist/persistparsers"
 	"github.com/ProtoML/ProtoML/types"
 	"net/http"
@@ -20,17 +20,17 @@ type success struct {
 	Sucess string
 }
 
-func (server *APIServerState) APIHandleFuncs() (routes []rest.Route) {
+func (server *APIServerState) APIHandleFuncs() (routes []*rest.Route) {
 	routes = append(routes,
-		rest.Route{"GET", GRAPHROOT, server.APIHandleGetGraph},
-		rest.Route{"POST", TRANSFORMROOT, server.APIHandleNewTransform},
-		rest.Route{"PUT", TRANSFORMROOT+"/:id", server.APIHandleUpdateTransform},
-		rest.Route{"POST", DATASETROOT, server.APIHandleNewDataset},
+		&rest.Route{"GET", GRAPHROOT, server.APIHandleGetGraph},
+		&rest.Route{"POST", TRANSFORMROOT, server.APIHandleNewTransform},
+		&rest.Route{"PUT", TRANSFORMROOT+"/:id", server.APIHandleUpdateTransform},
+		&rest.Route{"POST", DATASETROOT, server.APIHandleNewDataset},
 	)
 	return
 }
 
-func (server *APIServerState) APIHandleGetGraph(w *rest.ResponseWriter, req *rest.Request) {
+func (server *APIServerState) APIHandleGetGraph(w rest.ResponseWriter, req *rest.Request) {
 	graph, err := server.Store.GetGraph()
 	if err != nil {
 		rest.Error(w, fmt.Sprintf("Error retrieving graph: %s", err), http.StatusBadRequest)
@@ -42,7 +42,7 @@ func (server *APIServerState) APIHandleGetGraph(w *rest.ResponseWriter, req *res
 }
 
 
-func (server *APIServerState) APIHandleNewTransform(w *rest.ResponseWriter, req *rest.Request) {
+func (server *APIServerState) APIHandleNewTransform(w rest.ResponseWriter, req *rest.Request) {
 	var itransform types.InducedTransform
 	// decode request
 	err := req.DecodeJsonPayload(&itransform)
@@ -73,7 +73,7 @@ type itransformUpdate struct {
 	Itransform types.InducedTransform
 }
 
-func (server *APIServerState) APIHandleUpdateTransform(w *rest.ResponseWriter, req *rest.Request) {
+func (server *APIServerState) APIHandleUpdateTransform(w rest.ResponseWriter, req *rest.Request) {
 	var itu itransformUpdate
 	// decode request
 	err := req.DecodeJsonPayload(&itu)
@@ -99,6 +99,6 @@ func (server *APIServerState) APIHandleUpdateTransform(w *rest.ResponseWriter, r
 	return
 }
 
-func (server *APIServerState) APIHandleNewDataset(w *rest.ResponseWriter, req *rest.Request) {
+func (server *APIServerState) APIHandleNewDataset(w rest.ResponseWriter, req *rest.Request) {
 	return
 }
