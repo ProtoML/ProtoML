@@ -7,7 +7,7 @@ import (
 	"github.com/ProtoML/ProtoML/logger"
 	"github.com/ProtoML/ProtoML-persist/persist"
 	"html"
-	"github.com/ant0ine/go-json-rest"
+	"github.com/ant0ine/go-json-rest/rest"
 ) 
 
 const (
@@ -35,7 +35,7 @@ func (server *APIServerState) Close() {
 
 // Start api server with ability to shutdown
 func (server *APIServerState) Start() (errChan chan error) {
-	routes := []rest.Route{rest.Route{"GET", "/", server.index}}
+	routes := []*rest.Route{&rest.Route{"GET", "/", server.index}}
 	routes = append(routes, server.APIHandleFuncs()...)
 	server.ResourceHandler.SetRoutes(routes...)
 
@@ -68,12 +68,12 @@ func (server *APIServerState) Start() (errChan chan error) {
 	return server.errChan
 } 
 
-func (server* APIServerState) unrecognizedCall(w *rest.ResponseWriter, req *rest.Request) {
+func (server* APIServerState) unrecognizedCall(w rest.ResponseWriter, req *rest.Request) {
 	//http.Redirect(w, req, "/error", http.StatusNotFound)
 	return
 }
 
-func (server* APIServerState) index(w *rest.ResponseWriter, req *rest.Request) {
+func (server* APIServerState) index(w rest.ResponseWriter, req *rest.Request) {
 	fmt.Fprintf(w, "Hello, %q", html.EscapeString(req.URL.Path))
 }
 
